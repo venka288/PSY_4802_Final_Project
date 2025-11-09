@@ -1,0 +1,44 @@
+---
+title: "PSY_4802_Final_Project"
+author: "Varsha Venkatesh"
+date: "2025-11-09"
+output: html_document
+---
+
+```{r}
+load(file = "pfi_pu_pert.rdata")
+```
+
+
+```{r}
+library(ggplot2)
+library(summarytools)
+library(dplyr)
+library(scales)
+```
+
+```{r}
+freq(pfi_pu_pert$ziplocl)
+
+# Creating a dataframe of number of partipants in each region
+percentage_data <- pfi_pu_pert %>%
+  count(ziplocl)
+percentage_data
+```
+
+```{r}
+# I need to create a column in the dataframe that divides the number of participants who attended a child's school event by the total number of participants in that regional category
+percentage_data$fssportx <- 
+
+```
+
+```{r}
+ggplot(pfi_pu_pert, aes(fssportx, fill = ziplocl)) +
+  geom_bar(position = "dodge")
+
+ggplot(pfi_pu_pert, aes(fssportx, fill = ziplocl)) +
+  geom_bar(aes(y = (..count..) / sum(..count..)), position = "dodge") + 
+  scale_y_continuous(labels = scales::percent) +
+  labs(y = "Percentage")
+
+```
