@@ -27,7 +27,7 @@ percentage_data
 ```
 
 ```{r}
-# I need to create a column in the dataframe that divides the number of participants who attended a child's school event by the total number of participants in that regional category
+# I need to create a column in the dataframe that divides the number of participants who attended a child's school event by the total number of participants in that regional category and multiplies that value by 100 to get a percentage
 percentage_data$fssportx <- 
 
 ```
