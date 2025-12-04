@@ -7,8 +7,6 @@ output: html_document
 
 ```{r}
 load(file = "pfi_pu_pert.rdata")
-pfi_pu_pert <- pfi_pu_pert %>% 
-  select("basmid", "ziplocl", "fssportx":"fscounslr")
 ```
 
 ```{r packages}
@@ -17,6 +15,11 @@ library(summarytools)
 library(dplyr)
 library(scales)
 library(tidyr)
+```
+
+```{r selecting variables}
+pfi_pu_pert <- pfi_pu_pert %>% 
+  select("basmid", "ziplocl", "fssportx":"fscounslr")
 ```
 
 ```{r recoding}
@@ -118,14 +121,26 @@ percentage_data_long <- pivot_longer(percentage_data,
                                      "fssportx":"fscounslr",
                                      names_to = "support_type",
                                      values_to = "percentage")
+
+percentage_data_pop <- percentage_data_long
+percentage_data_pop$total <- ((percentage_data_long$n * percentage_data_long$percentage)/100)
+percentage_data_pop <- percentage_data_pop %>% 
+  select("support_type", "total")
+percentage_data_pop <- percentage_data_pop %>% 
+  group_by(support_type)
+percentage_data_pop$total <- as.numeric(percentage_data_pop$total)
+
+#percentage_data_pop_wide <- pivot_wider(percentage_data_pop,
+                                        #names_from = "support_type",
+                                        #values_from = "total")
 ```
 
 ```{r research question 1}
 #Which methods of involvement are parents most frequently engaged in?
+expected_value <- sum(percentage_data_long$percentage)/nrow(percentage_data_long)
 
-rq1 <- glm(support_given ~ support_type, data = pfi_long, family="binomial")
-summary(rq1)
-#I attempted a logistic regression but am unsure how to interpret these results
+
+chisq.test(percentage_data_long$percentage, p = c(1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8))
 ```
 
 ```{r methods of involvement graph}
