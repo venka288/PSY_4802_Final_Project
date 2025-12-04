@@ -15,6 +15,7 @@ library(summarytools)
 library(dplyr)
 library(scales)
 library(tidyr)
+library(jtools)
 ```
 
 ```{r selecting variables}
@@ -148,10 +149,10 @@ chisq.test(percentage_data_pop$total, p = c(1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1
 ```{r methods of involvement graph}
 ggplot(percentage_data_long, aes(support_type, (percentage/4), fill = support_type)) +
   geom_bar(stat = "identity") +
-  theme_classic() +
+  theme_apa() +
   xlab("Support Type") +
   ylab("% Parents") +
-  ggtitle("% Parents Involvement by Activity") +
+  ggtitle("Figure 1: % Parent Involvement by Activity") +
   scale_x_discrete(
     labels = c("fsatcnfn" = "Conference", "fscommte" = "Committee", "fscounslr" = "Counselor", "fsfundrs" = "Fundraising", "fsmtng" = "Meeting", "fsptmtng" = "PTA/PTO", "fssportx" = "Event", "fsvol" = "Volunteer")
   ) +
@@ -196,28 +197,25 @@ sd(rural_dat$parent_involvement)
 ```{r amount of involvement graph}
 ggplot(pfi_pu_pert, aes(ziplocl, parent_involvement, fill = ziplocl)) +
   geom_boxplot() +
-  theme_classic() +
+  theme_apa() +
   xlab("Community Type") +
   ylab("# of Involvement Activities") +
-  ggtitle("Amount of Parent Involvement by Community Type") +
+  ggtitle("Figure 2: Amount of Parent Involvement by Community Type") +
   theme(legend.position = "none")
 ```
 
 ```{r research question 3}
 #Are there differences in the most common type of parent involvement in education across different kinds of communities in the U.S.?
-contingency_table <- percentage_data_long %>% 
-  select(percentage_data_long$ziplocl, percentage_data_long$support_type, percentage_data_long$percentage)
-
-chisq.test(percentage_data_long$percentage)
+print(n = 32, percentage_data_long)
 ```
 
 ```{r most common forms of support}
 ggplot(percentage_data_long, aes(ziplocl, percentage, fill = support_type)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  theme_classic() +
+  theme_apa() +
   xlab("Community Type") +
   ylab("% Parents") +
-  ggtitle("% Parents Involvement by Activity") +
+  ggtitle("Figure 3: % Parents Involvement by Activity") +
   scale_fill_discrete(
         labels = c("fsatcnfn" = "Attend a parent-teacher conference", "fscommte" = "Serve on school committee", "fscounslr" = "Meet with a guidance counselor", "fsfundrs" = "Participate in fundraising", "fsmtng" = "Attend a school meeting", "fsptmtng" = "Attend a parent-teacher organization meeting", "fssportx" = "Attend a school or class event", "fsvol" = "Serve as a volunteer")
       ) +
