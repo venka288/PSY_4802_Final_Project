@@ -130,17 +130,19 @@ percentage_data_pop <- percentage_data_pop %>%
   group_by(support_type)
 percentage_data_pop$total <- as.numeric(percentage_data_pop$total)
 
-#percentage_data_pop_wide <- pivot_wider(percentage_data_pop,
-                                        #names_from = "support_type",
-                                        #values_from = "total")
+percentage_data_pop <- percentage_data_pop %>%
+      group_by(support_type) %>%
+      summarize(
+        total = sum(total)
+      )
 ```
 
 ```{r research question 1}
 #Which methods of involvement are parents most frequently engaged in?
 expected_value <- sum(percentage_data_long$percentage)/nrow(percentage_data_long)
 
-
-chisq.test(percentage_data_long$percentage, p = c(1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8))
+chisq.test(percentage_data_pop$total, p = c(1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8, 1/8))
+#There are statistically significant differences in parent involvement across activities
 ```
 
 ```{r methods of involvement graph}
@@ -203,8 +205,10 @@ ggplot(pfi_pu_pert, aes(ziplocl, parent_involvement, fill = ziplocl)) +
 
 ```{r research question 3}
 #Are there differences in the most common type of parent involvement in education across different kinds of communities in the U.S.?
+contingency_table <- percentage_data_long %>% 
+  select(percentage_data_long$ziplocl, percentage_data_long$support_type, percentage_data_long$percentage)
 
-freq(pfi_pu_pert$ziplocl)
+chisq.test(percentage_data_long$percentage)
 ```
 
 ```{r most common forms of support}
