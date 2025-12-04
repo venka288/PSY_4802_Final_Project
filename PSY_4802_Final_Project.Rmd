@@ -7,38 +7,200 @@ output: html_document
 
 ```{r}
 load(file = "pfi_pu_pert.rdata")
+pfi_pu_pert <- pfi_pu_pert %>% 
+  select("basmid", "ziplocl", "fssportx":"fscounslr")
 ```
 
-
-```{r}
+```{r packages}
 library(ggplot2)
 library(summarytools)
 library(dplyr)
 library(scales)
+library(tidyr)
 ```
 
-```{r}
-freq(pfi_pu_pert$ziplocl)
+```{r recoding}
+#recoding
+pfi_pu_pert[pfi_pu_pert == -1] <- NA
+pfi_pu_pert[pfi_pu_pert == 2] <- 0
+```
 
+```{r data cleaning}
+pfi_pu_pert$ziplocl <- as.factor(pfi_pu_pert$ziplocl)
+
+levels(pfi_pu_pert$ziplocl) <- c("City", "City", "City",
+                                 "Suburb", "Suburb", "Suburb", 
+                                 "Town", "Town", "Town",
+                                 "Rural", "Rural", "Rural")
+
+levels(pfi_pu_pert$ziplocl)
+
+pfi_pu_pert$parent_involvement <- rowSums((pfi_pu_pert[, 3:10]), na.rm = TRUE)
+summary(pfi_pu_pert$parent_involvement)
+
+pfi_long <- pivot_longer(pfi_pu_pert,
+                         "fssportx":"fscounslr",
+                         names_to = "support_type",
+                         values_to = "support_given")
+```
+
+```{r subsetting}
+city_dat <- pfi_pu_pert %>% 
+  filter(pfi_pu_pert$ziplocl == "City")
+
+suburb_dat <- pfi_pu_pert %>% 
+  filter(pfi_pu_pert$ziplocl == "Suburb")
+
+town_dat <- pfi_pu_pert %>% 
+  filter(pfi_pu_pert$ziplocl == "Town")
+
+rural_dat <- pfi_pu_pert %>% 
+  filter(pfi_pu_pert$ziplocl == "Rural")
+```
+
+```{r participant info graph}
+ggplot(pfi_pu_pert, aes(ziplocl, fill = ziplocl)) +
+  geom_bar() +
+  theme_classic() +
+  xlab("Community Type") +
+  ylab("# of Participants") +
+  ggtitle("Participants by Community Type") +
+  theme(legend.position = "none")
+```
+
+```{r percentage data}
 # Creating a dataframe of number of participants in each region
 percentage_data <- pfi_pu_pert %>%
   count(ziplocl)
 percentage_data
+
+percentage_data$fssportx <- c((sum(city_dat$fssportx, na.rm = TRUE)/nrow(city_dat) * 100),
+                              (sum(suburb_dat$fssportx, na.rm = TRUE)/nrow(suburb_dat) * 100),
+                              (sum(town_dat$fssportx, na.rm = TRUE)/nrow(town_dat) * 100),
+                              (sum(rural_dat$fssportx, na.rm = TRUE)/nrow(rural_dat) * 100))
+
+percentage_data$fsvol <- c((sum(city_dat$fsvol, na.rm = TRUE)/nrow(city_dat) * 100),
+                              (sum(suburb_dat$fsvol, na.rm = TRUE)/nrow(suburb_dat) * 100),
+                              (sum(town_dat$fsvol, na.rm = TRUE)/nrow(town_dat) * 100),
+                              (sum(rural_dat$fsvol, na.rm = TRUE)/nrow(rural_dat) * 100))
+
+percentage_data$fsmtng <- c((sum(city_dat$fsmtng, na.rm = TRUE)/nrow(city_dat) * 100),
+                              (sum(suburb_dat$fsmtng, na.rm = TRUE)/nrow(suburb_dat) * 100),
+                              (sum(town_dat$fsmtng, na.rm = TRUE)/nrow(town_dat) * 100),
+                              (sum(rural_dat$fsmtng, na.rm = TRUE)/nrow(rural_dat) * 100))
+
+percentage_data$fsptmtng <- c((sum(city_dat$fsptmtng, na.rm = TRUE)/nrow(city_dat) * 100),
+                              (sum(suburb_dat$fsptmtng, na.rm = TRUE)/nrow(suburb_dat) * 100),
+                              (sum(town_dat$fsptmtng, na.rm = TRUE)/nrow(town_dat) * 100),
+                              (sum(rural_dat$fsptmtng, na.rm = TRUE)/nrow(rural_dat) * 100))
+
+percentage_data$fsatcnfn <- c((sum(city_dat$fsatcnfn, na.rm = TRUE)/nrow(city_dat) * 100),
+                              (sum(suburb_dat$fsatcnfn, na.rm = TRUE)/nrow(suburb_dat) * 100),
+                              (sum(town_dat$fsatcnfn, na.rm = TRUE)/nrow(town_dat) * 100),
+                              (sum(rural_dat$fsatcnfn, na.rm = TRUE)/nrow(rural_dat) * 100))
+
+percentage_data$fsfundrs <- c((sum(city_dat$fsfundrs, na.rm = TRUE)/nrow(city_dat) * 100),
+                              (sum(suburb_dat$fsfundrs, na.rm = TRUE)/nrow(suburb_dat) * 100),
+                              (sum(town_dat$fsfundrs, na.rm = TRUE)/nrow(town_dat) * 100),
+                              (sum(rural_dat$fsfundrs, na.rm = TRUE)/nrow(rural_dat) * 100))
+
+percentage_data$fscommte <- c((sum(city_dat$fscommte, na.rm = TRUE)/nrow(city_dat) * 100),
+                              (sum(suburb_dat$fscommte, na.rm = TRUE)/nrow(suburb_dat) * 100),
+                              (sum(town_dat$fscommte, na.rm = TRUE)/nrow(town_dat) * 100),
+                              (sum(rural_dat$fscommte, na.rm = TRUE)/nrow(rural_dat) * 100))
+
+percentage_data$fscounslr <- c((sum(city_dat$fscounslr, na.rm = TRUE)/nrow(city_dat) * 100),
+                              (sum(suburb_dat$fscounslr, na.rm = TRUE)/nrow(suburb_dat) * 100),
+                              (sum(town_dat$fscounslr, na.rm = TRUE)/nrow(town_dat) * 100),
+                              (sum(rural_dat$fscounslr, na.rm = TRUE)/nrow(rural_dat) * 100))
+
+percentage_data_long <- pivot_longer(percentage_data,
+                                     "fssportx":"fscounslr",
+                                     names_to = "support_type",
+                                     values_to = "percentage")
 ```
 
-```{r}
-# I need to create a column in the dataframe that divides the number of participants who attended a child's school event by the total number of participants in that regional category and multiplies that value by 100 to get a percentage
+```{r research question 1}
+#Which methods of involvement are parents most frequently engaged in?
 
-percentage_data$fssportx <- 
+rq1 <- glm(support_given ~ support_type, data = pfi_long, family="binomial")
+summary(rq1)
+#I attempted a logistic regression but am unsure how to interpret these results
 ```
 
-```{r}
-ggplot(pfi_pu_pert, aes(fssportx, fill = ziplocl)) +
-  geom_bar(position = "dodge")
+```{r methods of involvement graph}
+ggplot(percentage_data_long, aes(support_type, (percentage/4), fill = support_type)) +
+  geom_bar(stat = "identity") +
+  theme_classic() +
+  xlab("Support Type") +
+  ylab("% Parents") +
+  ggtitle("% Parents Involvement by Activity") +
+  scale_x_discrete(
+    labels = c("fsatcnfn" = "Conference", "fscommte" = "Committee", "fscounslr" = "Counselor", "fsfundrs" = "Fundraising", "fsmtng" = "Meeting", "fsptmtng" = "PTA/PTO", "fssportx" = "Event", "fsvol" = "Volunteer")
+  ) +
+  scale_fill_discrete(
+        labels = c("fsatcnfn" = "Attend a parent-teacher conference", "fscommte" = "Serve on school committee", "fscounslr" = "Meet with a guidance counselor", "fsfundrs" = "Participate in fundraising", "fsmtng" = "Attend a school meeting", "fsptmtng" = "Attend a parent-teacher organization meeting", "fssportx" = "Attend a school or class event", "fsvol" = "Serve as a volunteer")
+      ) +
+  labs(fill = "Type of Support")
+```
 
-ggplot(pfi_pu_pert, aes(fssportx, fill = ziplocl)) +
-  geom_bar(aes(y = (..count..) / sum(..count..)), position = "dodge") + 
-  scale_y_continuous(labels = scales::percent) +
-  labs(y = "Percentage")
+```{r research question 2}
+#Are there differences in the amount of parent involvement in education across different kinds of communities in the U.S.?
+involvement_aov <- aov(parent_involvement ~ ziplocl, data = pfi_pu_pert)
+summary(involvement_aov)
+TukeyHSD(involvement_aov)
 
+#means and sds of parent involvement per community type
+mean(city_dat$parent_involvement)
+sd(city_dat$parent_involvement)
+#m = 4.177481
+#sd = 2.108711
+
+mean(suburb_dat$parent_involvement)
+sd(suburb_dat$parent_involvement)
+#m = 4.278893
+#sd = 2.008128
+
+mean(town_dat$parent_involvement)
+sd(town_dat$parent_involvement)
+#m = 3.992681
+#sd = 2.074603
+
+mean(rural_dat$parent_involvement)
+sd(rural_dat$parent_involvement)
+#m = 4.165517
+#sd = 2.056672
+
+#Significant differences
+#City > Town
+#Suburb > Town
+```
+
+```{r amount of involvement graph}
+ggplot(pfi_pu_pert, aes(ziplocl, parent_involvement, fill = ziplocl)) +
+  geom_boxplot() +
+  theme_classic() +
+  xlab("Community Type") +
+  ylab("# of Involvement Activities") +
+  ggtitle("Amount of Parent Involvement by Community Type") +
+  theme(legend.position = "none")
+```
+
+```{r research question 3}
+#Are there differences in the most common type of parent involvement in education across different kinds of communities in the U.S.?
+
+freq(pfi_pu_pert$ziplocl)
+```
+
+```{r most common forms of support}
+ggplot(percentage_data_long, aes(ziplocl, percentage, fill = support_type)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  theme_classic() +
+  xlab("Community Type") +
+  ylab("% Parents") +
+  ggtitle("% Parents Involvement by Activity") +
+  scale_fill_discrete(
+        labels = c("fsatcnfn" = "Attend a parent-teacher conference", "fscommte" = "Serve on school committee", "fscounslr" = "Meet with a guidance counselor", "fsfundrs" = "Participate in fundraising", "fsmtng" = "Attend a school meeting", "fsptmtng" = "Attend a parent-teacher organization meeting", "fssportx" = "Attend a school or class event", "fsvol" = "Serve as a volunteer")
+      ) +
+  labs(fill = "Type of Support")
 ```
